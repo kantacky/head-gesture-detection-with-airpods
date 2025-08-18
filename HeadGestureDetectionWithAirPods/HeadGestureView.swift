@@ -35,31 +35,31 @@ struct HeadGestureView: View {
                 case .default:
                     cubeLeft.transform.rotation = .init(
                         ix: Float(pose.quaternion.x),
-                        iy: Float(pose.quaternion.y),
-                        iz: Float(pose.quaternion.z),
-                        r: Float(pose.quaternion.w)
+                        iy: Float(pose.quaternion.z),
+                        iz: Float(pose.quaternion.y),
+                        r: -Float(pose.quaternion.w)
                     )
                     cubeRight.transform.rotation = .init(
                         ix: Float(pose.quaternion.x),
-                        iy: Float(pose.quaternion.y),
-                        iz: Float(pose.quaternion.z),
-                        r: Float(pose.quaternion.w)
+                        iy: Float(pose.quaternion.z),
+                        iz: Float(pose.quaternion.y),
+                        r: -Float(pose.quaternion.w)
                     )
                 case .headphoneLeft:
                     cubeLeft.transform.rotation = .init(
                         ix: Float(pose.quaternion.x),
-                        iy: Float(pose.quaternion.y),
-                        iz: Float(pose.quaternion.z),
-                        r: Float(pose.quaternion.w)
+                        iy: Float(pose.quaternion.z),
+                        iz: Float(pose.quaternion.y),
+                        r: -Float(pose.quaternion.w)
                     )
                     cubeRight.transform.rotation = .init(ix: 0, iy: 0, iz: 0, r: 0)
                 case .headphoneRight:
                     cubeLeft.transform.rotation = .init(ix: 0, iy: 0, iz: 0, r: 0)
                     cubeRight.transform.rotation = .init(
                         ix: Float(pose.quaternion.x),
-                        iy: Float(pose.quaternion.y),
-                        iz: Float(pose.quaternion.z),
-                        r: Float(pose.quaternion.w)
+                        iy: Float(pose.quaternion.z),
+                        iz: Float(pose.quaternion.y),
+                        r: -Float(pose.quaternion.w)
                     )
                 @unknown default:
                     return

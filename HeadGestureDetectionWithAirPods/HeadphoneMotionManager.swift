@@ -34,13 +34,6 @@ final class HeadphoneMotionManager: NSObject, CMHeadphoneMotionManagerDelegate {
         manager.stopDeviceMotionUpdates()
     }
 
-    func getCurrentPose() throws -> CMAttitude? {
-        guard manager.isDeviceMotionAvailable else {
-            throw HeadphoneMotionManagerError.deviceMotionNotAvailable
-        }
-        return manager.deviceMotion?.attitude
-    }
-
     func headphoneMotionManagerDidConnect(_ manager: CMHeadphoneMotionManager) {
     }
 

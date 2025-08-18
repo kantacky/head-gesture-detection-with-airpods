@@ -36,11 +36,6 @@ final class HeadGesturePresenter {
     func dispatch(_ action: Action) {
         switch action {
         case .onAppear:
-            do {
-                state.startingPose = try headphoneMotionManager.getCurrentPose()
-            } catch {
-                print("Error getting initial pose: \(error)")
-            }
             trackingTask = Task {
                 do {
                     for await motion in try headphoneMotionManager.startTracking() {
