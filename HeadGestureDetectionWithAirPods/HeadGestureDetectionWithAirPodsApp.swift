@@ -11,7 +11,7 @@ import SwiftUI
 struct HeadGestureDetectionWithAirPodsApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HeadphoneMotionView()
         }
     }
 }
