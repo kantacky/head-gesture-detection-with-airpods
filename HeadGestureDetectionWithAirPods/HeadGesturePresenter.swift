@@ -12,6 +12,8 @@ import Observation
 @Observable
 final class HeadGesturePresenter {
     struct State {
+        var motion: CMDeviceMotion?
+        var startingPose: CMAttitude?
         var currentPose: CMAttitude?
     }
 
@@ -22,7 +24,6 @@ final class HeadGesturePresenter {
     }
 
     private(set) var state = State()
-    private var startingPose: CMAttitude?
     private var trackingTask: Task<Void, Never>?
     private let headphoneMotionManager = HeadphoneMotionManager()
 
@@ -35,14 +36,21 @@ final class HeadGesturePresenter {
     func dispatch(_ action: Action) {
         switch action {
         case .onAppear:
-            startingPose = headphoneMotionManager.getCurrentPose()
+            do {
+                state.startingPose = try headphoneMotionManager.getCurrentPose()
+            } catch {
+                print("Error getting initial pose: \(error)")
+            }
             trackingTask = Task {
                 do {
-                    for await pose in try headphoneMotionManager.startTracking() {
-                        if let startingPose {
-                            pose.multiply(byInverseOf: startingPose)
+                    for await motion in try headphoneMotionManager.startTracking() {
+                        state.motion = motion
+                        if let startingPose = state.startingPose {
+                            motion.attitude.multiply(byInverseOf: startingPose)
+                        } else {
+                            state.startingPose = motion.attitude
                         }
-                        state.currentPose = pose
+                        state.currentPose = motion.attitude
                     }
                 } catch {
                     print("Error starting tracking: \(error)")
@@ -54,10 +62,7 @@ final class HeadGesturePresenter {
             headphoneMotionManager.stopTracking()
 
         case .onResetStartingPoseButton:
-            startingPose = headphoneMotionManager.getCurrentPose()
-            if let startingPose {
-                state.currentPose?.multiply(byInverseOf: startingPose)
-            }
+            state.startingPose = nil
         }
     }
 }

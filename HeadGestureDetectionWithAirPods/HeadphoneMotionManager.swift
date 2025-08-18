@@ -16,7 +16,7 @@ final class HeadphoneMotionManager: NSObject, CMHeadphoneMotionManagerDelegate {
         manager.delegate = self
     }
 
-    func startTracking(queue: OperationQueue? = .current) throws -> AsyncStream<CMAttitude> {
+    func startTracking(queue: OperationQueue? = .current) throws -> AsyncStream<CMDeviceMotion> {
         guard manager.isDeviceMotionAvailable else {
             throw HeadphoneMotionManagerError.deviceMotionNotAvailable
         }
@@ -25,7 +25,7 @@ final class HeadphoneMotionManager: NSObject, CMHeadphoneMotionManagerDelegate {
                 guard let motion else {
                     return
                 }
-                continuation.yield(motion.attitude)
+                continuation.yield(motion)
             }
         }
     }
@@ -34,8 +34,11 @@ final class HeadphoneMotionManager: NSObject, CMHeadphoneMotionManagerDelegate {
         manager.stopDeviceMotionUpdates()
     }
 
-    func getCurrentPose() -> CMAttitude? {
-        manager.deviceMotion?.attitude
+    func getCurrentPose() throws -> CMAttitude? {
+        guard manager.isDeviceMotionAvailable else {
+            throw HeadphoneMotionManagerError.deviceMotionNotAvailable
+        }
+        return manager.deviceMotion?.attitude
     }
 
     func headphoneMotionManagerDidConnect(_ manager: CMHeadphoneMotionManager) {
@@ -45,5 +48,5 @@ final class HeadphoneMotionManager: NSObject, CMHeadphoneMotionManagerDelegate {
     }
 }
 
-extension CMAttitude: @retroactive @unchecked Sendable {
+extension CMDeviceMotion: @retroactive @unchecked Sendable {
 }
