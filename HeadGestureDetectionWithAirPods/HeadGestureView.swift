@@ -36,6 +36,9 @@ struct HeadGestureView: View {
                 content.add(presenter.state.cubeRight)
             }
 
+            HeadGestureChartView(motionLogs: presenter.state.motionLogs)
+                .padding()
+
             Button("Reset Starting Pose") {
                 presenter.dispatch(.onResetStartingPoseButton)
             }

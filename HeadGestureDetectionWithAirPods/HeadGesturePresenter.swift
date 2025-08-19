@@ -20,6 +20,7 @@ final class HeadGesturePresenter {
         var motion: CMDeviceMotion?
         var startingPose: CMAttitude?
         var currentPose: CMAttitude?
+        var motionLogs: [CMDeviceMotion] = []
     }
 
     enum Action {
@@ -68,6 +69,7 @@ private extension HeadGesturePresenter {
             do {
                 for await motion in try headphoneMotionManager.startTracking() {
                     state.motion = motion
+                    updateMotionLogs()
                     if let startingPose = state.startingPose {
                         motion.attitude.multiply(byInverseOf: startingPose)
                     } else {
@@ -136,5 +138,15 @@ private extension HeadGesturePresenter {
         @unknown default:
             return
         }
+    }
+
+    func updateMotionLogs() {
+        guard let motion = state.motion else {
+            return
+        }
+        if state.motionLogs.count >= 128 {
+            state.motionLogs.removeFirst()
+        }
+        state.motionLogs.append(motion)
     }
 }
