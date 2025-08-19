@@ -39,6 +39,12 @@ struct HeadGestureView: View {
             HeadGestureChartView(motionLogs: presenter.state.motionLogs)
                 .padding()
 
+            Toggle(
+                presenter.state.isSavingMotionLogs ? "Saving..." : "Save Motion Logs",
+                isOn: $presenter.state.isSavingMotionLogs
+            )
+            .padding()
+
             Button("Reset Starting Pose") {
                 presenter.dispatch(.onResetStartingPoseButton)
             }

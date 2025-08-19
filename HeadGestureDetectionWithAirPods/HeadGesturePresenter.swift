@@ -21,6 +21,7 @@ final class HeadGesturePresenter {
         var startingPose: CMAttitude?
         var currentPose: CMAttitude?
         var motionLogs: [CMDeviceMotion] = []
+        var isSavingMotionLogs: Bool = false
     }
 
     enum Action {
@@ -33,6 +34,7 @@ final class HeadGesturePresenter {
     var state = State()
     private var trackingTask: Task<Void, Never>?
     private let headphoneMotionManager = HeadphoneMotionManager()
+    private let motionLogCSVManager = MotionLogCSVManager()
 
     deinit {
         Task { [weak self] in
@@ -128,6 +130,26 @@ private extension HeadGesturePresenter {
             state.motionLogs.removeFirst()
         }
         state.motionLogs.append(motion)
+        if state.isSavingMotionLogs {
+            saveMotionLog(motion: motion)
+        }
+    }
+
+    func saveMotionLog(motion: CMDeviceMotion) {
+        let row = MotionLogCSVRow(motion: motion)
+        Task {
+            do {
+                try await motionLogCSVManager.write(row.csvRowString())
+            } catch let error as MotionLogCSVManagerError {
+                if case .fileNotOpened = error {
+                    try await motionLogCSVManager.createAndOpen()
+                    try await motionLogCSVManager.write(MotionLogCSVRow.csvHeaderString)
+                    try await motionLogCSVManager.write(row.csvRowString())
+                }
+            } catch {
+                print("Failed to write motion log CSV file: \(error)")
+            }
+        }
     }
 }
 
