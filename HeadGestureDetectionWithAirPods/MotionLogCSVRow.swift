@@ -8,6 +8,8 @@
 import CoreMotion
 
 struct MotionLogCSVRow {
+    let timestamp: Date
+
     // Attitude
     let attitudeRoll: Double
     let attitudePitch: Double
@@ -35,6 +37,9 @@ struct MotionLogCSVRow {
     let userAccelerationZ: Double
 
     init(motion: CMDeviceMotion) {
+        let now = Date()
+        let bootTime = now.timeIntervalSince1970 - ProcessInfo.processInfo.systemUptime
+        timestamp = Date(timeIntervalSince1970: bootTime + motion.timestamp)
         attitudePitch = motion.attitude.pitch
         attitudeYaw = motion.attitude.yaw
         attitudeRoll = motion.attitude.roll
@@ -55,6 +60,7 @@ struct MotionLogCSVRow {
 
     func csvRowString() -> String {
         var list: [String] = []
+        list.append(timestamp.ISO8601Format())
         list.append(attitudeRoll.description)
         list.append(attitudePitch.description)
         list.append(attitudeYaw.description)
@@ -76,6 +82,7 @@ struct MotionLogCSVRow {
 
     static let csvHeaderString: String = {
         var list: [String] = []
+        list.append("timestamp")
         list.append("attitude_roll")
         list.append("attitude_pitch")
         list.append("attitude_yaw")

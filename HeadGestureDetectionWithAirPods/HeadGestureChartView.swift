@@ -14,7 +14,9 @@ struct HeadGestureChartView: View {
 
     var body: some View {
         Chart(motionLogs, id: \.timestamp) { motion in
-            let date = Date(timeIntervalSince1970: motion.timestamp)
+            let now = Date()
+            let bootTime = now.timeIntervalSince1970 - ProcessInfo.processInfo.systemUptime
+            let date = Date(timeIntervalSince1970: bootTime + motion.timestamp)
 
             // Attitude
             LineMark(
@@ -111,9 +113,21 @@ struct HeadGestureChartView: View {
                 "Attitude Roll": .red,
                 "Attitude Pitch": .green,
                 "Attitude Yaw": .orange,
+                "Gravity X": .clear,
+                "Gravity Y": .clear,
+                "Gravity Z": .clear,
+                "Quaternion X": .clear,
+                "Quaternion Y": .clear,
+                "Quaternion Z": .clear,
+                "Quaternion W": .clear,
+                "RotationRate X": .clear,
+                "RotationRate Y": .clear,
+                "RotationRate Z": .clear,
+                "UserAcceleration X": .clear,
+                "UserAcceleration Y": .clear,
+                "UserAcceleration Z": .clear,
             ]
         )
-        .chartYScale(domain: [-1, 1])
     }
 }
 
