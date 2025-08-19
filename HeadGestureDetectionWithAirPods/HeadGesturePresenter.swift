@@ -132,6 +132,10 @@ private extension HeadGesturePresenter {
         state.motionLogs.append(motion)
         if state.isSavingMotionLogs {
             saveMotionLog(motion: motion)
+        } else {
+            Task {
+                try? await motionLogCSVManager.close()
+            }
         }
     }
 
