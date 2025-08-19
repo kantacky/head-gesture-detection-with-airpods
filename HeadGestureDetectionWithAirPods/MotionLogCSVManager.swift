@@ -10,10 +10,15 @@ import Foundation
 final actor MotionLogCSVManager {
     private var file: FileHandle?
 
-    func createAndOpen() throws {
+    func createAndOpen(header: String) throws {
         let url = try Self.makeDocumentURL()
         FileManager.default.createFile(atPath: url.path, contents: nil, attributes: nil)
-        file = try FileHandle(forWritingTo: url)
+        let file = try FileHandle(forWritingTo: url)
+        guard let data = header.data(using: .utf8) else {
+            throw MotionLogCSVManagerError.failedToConvertStringToData
+        }
+        file.write(data)
+        self.file = file
         print("File opened: \(url.absoluteString)")
     }
 

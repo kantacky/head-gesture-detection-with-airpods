@@ -146,8 +146,7 @@ private extension HeadGesturePresenter {
                 try await motionLogCSVManager.write(row.csvRowString())
             } catch let error as MotionLogCSVManagerError {
                 if case .fileNotOpened = error {
-                    try await motionLogCSVManager.createAndOpen()
-                    try await motionLogCSVManager.write(MotionLogCSVRow.csvHeaderString)
+                    try await motionLogCSVManager.createAndOpen(header: MotionLogCSVRow.csvHeaderString)
                     try await motionLogCSVManager.write(row.csvRowString())
                 }
             } catch {
