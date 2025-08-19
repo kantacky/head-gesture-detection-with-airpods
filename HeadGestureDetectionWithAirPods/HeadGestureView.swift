@@ -13,6 +13,23 @@ struct HeadGestureView: View {
 
     var body: some View {
         VStack {
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack {
+                    ForEach(0..<10) { index in
+                        Text(index.description)
+                            .containerRelativeFrame(.horizontal)
+                            .frame(maxHeight: .infinity)
+                            .background(.secondary)
+                            .clipShape(RoundedRectangle(cornerRadius: 8))
+                    }
+                }
+                .scrollTargetLayout()
+            }
+            .scrollPosition(id: $presenter.state.scrollPosition)
+            .scrollTargetBehavior(.viewAligned)
+            .safeAreaPadding(.horizontal, 24)
+            .frame(height: 120)
+
             RealityView { content in
                 await presenter.dispatch(.makeRealityView)
                 content.add(presenter.state.cubeLeft)
@@ -24,8 +41,8 @@ struct HeadGestureView: View {
             }
             .buttonStyle(.borderedProminent)
             .buttonBorderShape(.capsule)
+            .padding()
         }
-        .padding()
         .onAppear {
             presenter.dispatch(.onAppear)
         }

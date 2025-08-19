@@ -14,6 +14,7 @@ import RealityKit
 final class HeadGesturePresenter {
     @MainActor
     struct State {
+        var scrollPosition: Int? = 0
         var cubeLeft = ModelEntity()
         var cubeRight = ModelEntity()
         var motion: CMDeviceMotion?
@@ -26,10 +27,9 @@ final class HeadGesturePresenter {
         case onDisappear
         case onResetStartingPoseButton
         case makeRealityView
-        case updateRealityView
     }
 
-    private(set) var state = State()
+    var state = State()
     private var trackingTask: Task<Void, Never>?
     private let headphoneMotionManager = HeadphoneMotionManager()
 
@@ -58,9 +58,6 @@ final class HeadGesturePresenter {
 
         case .makeRealityView:
             makeRealityView()
-
-        case .updateRealityView:
-            updateRealityView()
         }
     }
 }
