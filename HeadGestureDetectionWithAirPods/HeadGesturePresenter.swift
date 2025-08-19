@@ -107,34 +107,14 @@ private extension HeadGesturePresenter {
         }
         switch motion.sensorLocation {
         case .default:
-            state.cubeLeft.transform.rotation = .init(
-                ix: Float(pose.quaternion.x),
-                iy: Float(pose.quaternion.z),
-                iz: Float(pose.quaternion.y),
-                r: -Float(pose.quaternion.w)
-            )
-            state.cubeRight.transform.rotation = .init(
-                ix: Float(pose.quaternion.x),
-                iy: Float(pose.quaternion.z),
-                iz: Float(pose.quaternion.y),
-                r: -Float(pose.quaternion.w)
-            )
+            state.cubeLeft.transform.rotation = pose.quaternion.simd_quatf
+            state.cubeRight.transform.rotation = pose.quaternion.simd_quatf
         case .headphoneLeft:
-            state.cubeLeft.transform.rotation = .init(
-                ix: Float(pose.quaternion.x),
-                iy: Float(pose.quaternion.z),
-                iz: Float(pose.quaternion.y),
-                r: -Float(pose.quaternion.w)
-            )
+            state.cubeLeft.transform.rotation = pose.quaternion.simd_quatf
             state.cubeRight.transform.rotation = .init(ix: 0, iy: 0, iz: 0, r: 0)
         case .headphoneRight:
             state.cubeLeft.transform.rotation = .init(ix: 0, iy: 0, iz: 0, r: 0)
-            state.cubeRight.transform.rotation = .init(
-                ix: Float(pose.quaternion.x),
-                iy: Float(pose.quaternion.z),
-                iz: Float(pose.quaternion.y),
-                r: -Float(pose.quaternion.w)
-            )
+            state.cubeRight.transform.rotation = pose.quaternion.simd_quatf
         @unknown default:
             return
         }
@@ -148,5 +128,16 @@ private extension HeadGesturePresenter {
             state.motionLogs.removeFirst()
         }
         state.motionLogs.append(motion)
+    }
+}
+
+private extension CMQuaternion {
+    var simd_quatf: simd_quatf {
+        .init(
+            ix: Float(x),
+            iy: Float(z),
+            iz: Float(y),
+            r: -Float(w)
+        )
     }
 }
