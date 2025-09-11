@@ -1,5 +1,5 @@
 //
-//  HeadGestureView.swift
+//  HeadGestureScreen.swift
 //  HeadGestureDetectionWithAirPods
 //
 //  Created by Kanta Oikawa on 2025/08/18.
@@ -8,7 +8,7 @@
 import RealityKit
 import SwiftUI
 
-struct HeadGestureView: View {
+struct HeadGestureScreen: View {
     @State private var presenter = HeadGesturePresenter()
 
     var body: some View {
@@ -62,5 +62,5 @@ struct HeadGestureView: View {
 }
 
 #Preview {
-    HeadGestureView()
+    HeadGestureScreen()
 }
