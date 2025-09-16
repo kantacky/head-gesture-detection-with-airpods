@@ -81,10 +81,9 @@ private extension HeadGesturePresenter {
             do {
                 for await motion in try motionService.startTracking() {
                     state.motion = motion
-                    guard let csvFile = state.csvFile else {
-                        return
+                    if let csvFile = state.csvFile {
+                        saveMotionLog(file: csvFile, motion: motion)
                     }
-                    saveMotionLog(file: csvFile, motion: motion)
                     if let startingPose = state.startingPose {
                         motion.attitude.multiply(byInverseOf: startingPose)
                     } else {
