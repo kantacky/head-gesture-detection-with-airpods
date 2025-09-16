@@ -81,7 +81,7 @@ private extension HeadGesturePresenter {
             do {
                 for await motion in try motionService.startTracking() {
                     state.motion = motion
-                    updateMotionLogs()
+                    updateMotionLogs(newValue: motion)
                     if let startingPose = state.startingPose {
                         motion.attitude.multiply(byInverseOf: startingPose)
                     } else {
@@ -134,16 +134,13 @@ private extension HeadGesturePresenter {
         }
     }
 
-    func updateMotionLogs() {
-        guard let motion = state.motion else {
-            return
-        }
-        if state.motionLogs.count >= 128 {
+    func updateMotionLogs(newValue: CMDeviceMotion) {
+        if state.motionLogs.count >= 64 {
             state.motionLogs.removeFirst()
         }
-        state.motionLogs.append(motion)
+        state.motionLogs.append(newValue)
         if state.isLogging {
-            saveMotionLog(motion: motion)
+            saveMotionLog(motion: newValue)
         } else {
             Task {
                 guard let file = csvFile else {
