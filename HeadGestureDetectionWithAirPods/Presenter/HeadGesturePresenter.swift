@@ -6,6 +6,7 @@
 //
 
 import CoreMotion
+import Dependencies
 import Observation
 import RealityKit
 
@@ -21,20 +22,26 @@ final class HeadGesturePresenter {
         var startingPose: CMAttitude?
         var currentPose: CMAttitude?
         var motionLogs: [CMDeviceMotion] = []
-        var isSavingMotionLogs: Bool = false
+        var isLogging: Bool = false
     }
 
     enum Action {
         case onAppear
         case onDisappear
-        case onResetStartingPoseButton
+        case onLoggingButtonTapped
+        case onResetStartingPoseButtonTapped
         case makeRealityView
     }
 
     var state = State()
+    @ObservationIgnored
+    @Dependency(MotionService.self) private var motionService
+    @ObservationIgnored
+    @Dependency(CSVService.self) private var csvService
+    @ObservationIgnored
     private var trackingTask: Task<Void, Never>?
-    private let headphoneMotionManager = HeadphoneMotionManager()
-    private let motionLogCSVManager = MotionLogCSVManager()
+    @ObservationIgnored
+    private var csvFile: FileHandle?
 
     deinit {
         Task { [weak self] in
@@ -56,7 +63,10 @@ final class HeadGesturePresenter {
         case .onDisappear:
             onDisappear()
 
-        case .onResetStartingPoseButton:
+        case .onLoggingButtonTapped:
+            state.isLogging.toggle()
+
+        case .onResetStartingPoseButtonTapped:
             state.startingPose = nil
 
         case .makeRealityView:
@@ -69,7 +79,7 @@ private extension HeadGesturePresenter {
     func onAppear() {
         trackingTask = Task {
             do {
-                for await motion in try headphoneMotionManager.startTracking() {
+                for await motion in try motionService.startTracking() {
                     state.motion = motion
                     updateMotionLogs()
                     if let startingPose = state.startingPose {
@@ -88,7 +98,7 @@ private extension HeadGesturePresenter {
 
     func onDisappear() {
         trackingTask?.cancel()
-        headphoneMotionManager.stopTracking()
+        motionService.stopTracking()
     }
 
     func makeRealityView() {
@@ -99,7 +109,9 @@ private extension HeadGesturePresenter {
         state.cubeLeft.position = SIMD3(x: -1, y: 0, z: 0)
         state.cubeRight.position = SIMD3(x: 1, y: 0, z: 0)
     }
+}
 
+private extension HeadGesturePresenter {
     func updateRealityView() {
         guard
             let motion = state.motion,
@@ -130,28 +142,36 @@ private extension HeadGesturePresenter {
             state.motionLogs.removeFirst()
         }
         state.motionLogs.append(motion)
-        if state.isSavingMotionLogs {
+        if state.isLogging {
             saveMotionLog(motion: motion)
         } else {
             Task {
-                try? await motionLogCSVManager.close()
+                guard let file = csvFile else {
+                    return
+                }
+                try? csvService.close(file)
             }
         }
     }
 
     func saveMotionLog(motion: CMDeviceMotion) {
-        let row = MotionLogCSVRow(motion: motion)
-        Task {
-            do {
-                try await motionLogCSVManager.write(row.csvRowString())
-            } catch let error as MotionLogCSVManagerError {
-                if case .fileNotOpened = error {
-                    try await motionLogCSVManager.createAndOpen(header: MotionLogCSVRow.csvHeaderString)
-                    try await motionLogCSVManager.write(row.csvRowString())
-                }
-            } catch {
-                print("Failed to write motion log CSV file: \(error)")
+        do {
+            if csvFile == nil {
+                let formatter = ISO8601DateFormatter()
+                let filename = formatter.string(from: .now)
+                let file = try csvService.create(
+                    header: MotionLogCSVRow.csvHeaderString,
+                    filename: filename
+                )
+                csvFile = file
             }
+            guard let file = csvFile else {
+                return
+            }
+            let row = MotionLogCSVRow(motion: motion)
+            try csvService.write(row.csvRowString(), file)
+        } catch {
+            print("Failed to write motion log CSV file: \(error)")
         }
     }
 }

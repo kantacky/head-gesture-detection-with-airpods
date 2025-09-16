@@ -1,13 +1,13 @@
 //
-//  HeadphoneMotionManager.swift
+//  HeadphoneMotionRepository.swift
 //  HeadGestureDetectionWithAirPods
 //
 //  Created by Kanta Oikawa on 2025/08/18.
 //
 
-import CoreMotion
+@preconcurrency import CoreMotion
 
-final class HeadphoneMotionManager: NSObject, CMHeadphoneMotionManagerDelegate {
+final class HeadphoneMotionRepository: NSObject, CMHeadphoneMotionManagerDelegate, Sendable {
     private let manager: CMHeadphoneMotionManager
 
     override init() {
@@ -18,7 +18,7 @@ final class HeadphoneMotionManager: NSObject, CMHeadphoneMotionManagerDelegate {
 
     func startTracking(queue: OperationQueue? = .current) throws -> AsyncStream<CMDeviceMotion> {
         guard manager.isDeviceMotionAvailable else {
-            throw HeadphoneMotionManagerError.deviceMotionNotAvailable
+            throw HeadphoneMotionRepositoryError.deviceMotionNotAvailable
         }
         return AsyncStream { continuation in
             manager.startDeviceMotionUpdates(to: queue ?? .main) { motion, error in
@@ -32,12 +32,6 @@ final class HeadphoneMotionManager: NSObject, CMHeadphoneMotionManagerDelegate {
 
     func stopTracking() {
         manager.stopDeviceMotionUpdates()
-    }
-
-    func headphoneMotionManagerDidConnect(_ manager: CMHeadphoneMotionManager) {
-    }
-
-    func headphoneMotionManagerDidDisconnect(_ manager: CMHeadphoneMotionManager) {
     }
 }
 
