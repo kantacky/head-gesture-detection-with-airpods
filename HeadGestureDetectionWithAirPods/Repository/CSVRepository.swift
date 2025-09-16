@@ -10,6 +10,7 @@ import Foundation
 final actor CSVRepository {
     static func create(header: String, filename: String) throws -> FileHandle {
         let url = try buildDocumentURL(filename: filename)
+        print("CSV file path: \(url.path)")
         FileManager.default.createFile(atPath: url.path, contents: nil, attributes: nil)
         let file = try FileHandle(forWritingTo: url)
         guard let data = header.data(using: .utf8) else {

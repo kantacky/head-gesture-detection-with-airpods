@@ -36,9 +36,6 @@ struct HeadGestureScreen: View {
                 content.add(presenter.state.cubeRight)
             }
 
-            HeadGestureChartView(motionLogs: presenter.state.motionLogs)
-                .padding()
-
             Button(presenter.state.isLogging ? "Stop Logging" : "Start Logging") {
                 presenter.dispatch(.onLoggingButtonTapped)
             }

@@ -21,8 +21,10 @@ final class HeadGesturePresenter {
         var motion: CMDeviceMotion?
         var startingPose: CMAttitude?
         var currentPose: CMAttitude?
-        var motionLogs: [CMDeviceMotion] = []
-        var isLogging: Bool = false
+        var isLogging: Bool {
+            csvFile != nil
+        }
+        fileprivate var csvFile: FileHandle?
     }
 
     enum Action {
@@ -40,8 +42,6 @@ final class HeadGesturePresenter {
     @Dependency(CSVService.self) private var csvService
     @ObservationIgnored
     private var trackingTask: Task<Void, Never>?
-    @ObservationIgnored
-    private var csvFile: FileHandle?
 
     deinit {
         Task { [weak self] in
@@ -64,7 +64,7 @@ final class HeadGesturePresenter {
             onDisappear()
 
         case .onLoggingButtonTapped:
-            state.isLogging.toggle()
+            onLoggingButtonTapped()
 
         case .onResetStartingPoseButtonTapped:
             state.startingPose = nil
@@ -81,7 +81,10 @@ private extension HeadGesturePresenter {
             do {
                 for await motion in try motionService.startTracking() {
                     state.motion = motion
-                    updateMotionLogs(newValue: motion)
+                    guard let csvFile = state.csvFile else {
+                        return
+                    }
+                    saveMotionLog(file: csvFile, motion: motion)
                     if let startingPose = state.startingPose {
                         motion.attitude.multiply(byInverseOf: startingPose)
                     } else {
@@ -99,6 +102,22 @@ private extension HeadGesturePresenter {
     func onDisappear() {
         trackingTask?.cancel()
         motionService.stopTracking()
+    }
+
+    func onLoggingButtonTapped() {
+        if let csvFile = state.csvFile {
+            try? csvService.close(csvFile)
+            state.csvFile = nil
+            return
+        }
+        do {
+            state.csvFile = try csvService.create(
+                header: MotionLogCSVRow.csvHeaderString,
+                filename: DateFormatter.fileName.string(from: .now)
+            )
+        } catch {
+            print("Failed to create motion log CSV file: \(error)")
+        }
     }
 
     func makeRealityView() {
@@ -134,37 +153,8 @@ private extension HeadGesturePresenter {
         }
     }
 
-    func updateMotionLogs(newValue: CMDeviceMotion) {
-        if state.motionLogs.count >= 64 {
-            state.motionLogs.removeFirst()
-        }
-        state.motionLogs.append(newValue)
-        if state.isLogging {
-            saveMotionLog(motion: newValue)
-        } else {
-            Task {
-                guard let file = csvFile else {
-                    return
-                }
-                try? csvService.close(file)
-            }
-        }
-    }
-
-    func saveMotionLog(motion: CMDeviceMotion) {
+    func saveMotionLog(file: FileHandle, motion: CMDeviceMotion) {
         do {
-            if csvFile == nil {
-                let formatter = ISO8601DateFormatter()
-                let filename = formatter.string(from: .now)
-                let file = try csvService.create(
-                    header: MotionLogCSVRow.csvHeaderString,
-                    filename: filename
-                )
-                csvFile = file
-            }
-            guard let file = csvFile else {
-                return
-            }
             let row = MotionLogCSVRow(motion: motion)
             try csvService.write(row.csvRowString(), file)
         } catch {
