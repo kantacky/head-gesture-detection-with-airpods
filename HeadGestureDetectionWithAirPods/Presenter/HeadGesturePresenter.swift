@@ -10,6 +10,7 @@ import CoreMotion
 import Dependencies
 import Observation
 import RealityKit
+import SwiftUI
 
 @MainActor
 @Observable
@@ -109,7 +110,7 @@ private extension HeadGesturePresenter {
             }
         }
         let timer = AsyncTimerSequence(
-            interval: .seconds(1),
+            interval: .milliseconds(100),
             clock: .continuous
         )
         gesturePredictionTimerTask = Task {
@@ -119,6 +120,9 @@ private extension HeadGesturePresenter {
                         continue
                     }
                     let gesture = try await headGesturePredictionService.predict(motions: state.motions)
+                    if state.currentGesture != gesture {
+                        scroll(gesture: gesture)
+                    }
                     state.currentGesture = gesture
                 } catch {
                     print("Failed to predict gesture: \(error)")
@@ -187,6 +191,21 @@ private extension HeadGesturePresenter {
             try csvService.write(row.csvRowString(), file)
         } catch {
             print("Failed to write motion log CSV file: \(error)")
+        }
+    }
+
+    func scroll(gesture: Gesture) {
+        var scrollPosition = state.scrollPosition ?? 0
+        switch gesture {
+        case .idle:
+            break
+        case .left:
+            scrollPosition += 1
+        case .right:
+            scrollPosition -= 1
+        }
+        withAnimation {
+            state.scrollPosition = max(0, scrollPosition)
         }
     }
 }

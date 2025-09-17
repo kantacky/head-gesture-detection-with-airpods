@@ -7,8 +7,10 @@
 
 enum Gesture: String {
     case idle
-    case shakeLeft = "shake-left"
-    case shakeRight = "shake-right"
-    case tiltLeft = "tilt-left"
-    case tiltRight = "tilt-right"
+    case left
+    case right
+
+    var label: String {
+        rawValue.capitalized
+    }
 }
