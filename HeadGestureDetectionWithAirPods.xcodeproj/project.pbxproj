@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F1317D592E79189700F7643E /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = F1317D582E79189700F7643E /* AsyncAlgorithms */; };
 		F14B027D2E72A9B700306532 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = F14B027C2E72A9B700306532 /* Dependencies */; };
 		F14B027F2E72A9B700306532 /* DependenciesMacros in Frameworks */ = {isa = PBXBuildFile; productRef = F14B027E2E72A9B700306532 /* DependenciesMacros */; };
 /* End PBXBuildFile section */
@@ -59,6 +60,7 @@
 			files = (
 				F14B027F2E72A9B700306532 /* DependenciesMacros in Frameworks */,
 				F14B027D2E72A9B700306532 /* Dependencies in Frameworks */,
+				F1317D592E79189700F7643E /* AsyncAlgorithms in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -121,6 +123,7 @@
 			packageProductDependencies = (
 				F14B027C2E72A9B700306532 /* Dependencies */,
 				F14B027E2E72A9B700306532 /* DependenciesMacros */,
+				F1317D582E79189700F7643E /* AsyncAlgorithms */,
 			);
 			productName = HeadGestureDetectionWithAirPods;
 			productReference = F130D4B32E21127C009ADB57 /* HeadGestureDetectionWithAirPods.app */;
@@ -206,6 +209,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				F14B027B2E72A9B700306532 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
+				F1317D572E79189700F7643E /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F130D4B42E21127C009ADB57 /* Products */;
@@ -611,6 +615,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F1317D572E79189700F7643E /* XCRemoteSwiftPackageReference "swift-async-algorithms" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-async-algorithms.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
 		F14B027B2E72A9B700306532 /* XCRemoteSwiftPackageReference "swift-dependencies" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-dependencies";
@@ -622,6 +634,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F1317D582E79189700F7643E /* AsyncAlgorithms */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F1317D572E79189700F7643E /* XCRemoteSwiftPackageReference "swift-async-algorithms" */;
+			productName = AsyncAlgorithms;
+		};
 		F14B027C2E72A9B700306532 /* Dependencies */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F14B027B2E72A9B700306532 /* XCRemoteSwiftPackageReference "swift-dependencies" */;

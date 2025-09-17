@@ -5,6 +5,7 @@
 //  Created by Kanta Oikawa on 2025/08/18.
 //
 
+import AsyncAlgorithms
 import CoreMotion
 import Dependencies
 import Observation
@@ -21,6 +22,8 @@ final class HeadGesturePresenter {
         var motion: CMDeviceMotion?
         var startingPose: CMAttitude?
         var currentPose: CMAttitude?
+        var motions: [CMDeviceMotion] = []
+        var currentGesture: Gesture = .idle
         var isLogging: Bool {
             csvFile != nil
         }
@@ -41,11 +44,16 @@ final class HeadGesturePresenter {
     @ObservationIgnored
     @Dependency(CSVService.self) private var csvService
     @ObservationIgnored
+    @Dependency(HeadGesturePredictionService.self) private var headGesturePredictionService
+    @ObservationIgnored
     private var trackingTask: Task<Void, Never>?
+    @ObservationIgnored
+    private var gesturePredictionTimerTask: Task<Void, Never>?
 
     deinit {
         Task { [weak self] in
             await self?.trackingTask?.cancel()
+            await self?.gesturePredictionTimerTask?.cancel()
         }
     }
 
@@ -84,6 +92,10 @@ private extension HeadGesturePresenter {
                     if let csvFile = state.csvFile {
                         saveMotionLog(file: csvFile, motion: motion)
                     }
+                    state.motions.append(motion)
+                    if state.motions.count > 100 {
+                        state.motions.removeFirst()
+                    }
                     if let startingPose = state.startingPose {
                         motion.attitude.multiply(byInverseOf: startingPose)
                     } else {
@@ -94,6 +106,23 @@ private extension HeadGesturePresenter {
                 }
             } catch {
                 print("Error starting tracking: \(error)")
+            }
+        }
+        let timer = AsyncTimerSequence(
+            interval: .seconds(1),
+            clock: .continuous
+        )
+        gesturePredictionTimerTask = Task {
+            for await _ in timer {
+                do {
+                    if state.motions.count != 100 {
+                        continue
+                    }
+                    let gesture = try await headGesturePredictionService.predict(motions: state.motions)
+                    state.currentGesture = gesture
+                } catch {
+                    print("Failed to predict gesture: \(error)")
+                }
             }
         }
     }

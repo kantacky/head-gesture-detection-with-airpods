@@ -13,22 +13,23 @@ struct HeadGestureScreen: View {
 
     var body: some View {
         VStack {
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack {
-                    ForEach(0..<10) { index in
-                        Text(index.description)
-                            .containerRelativeFrame(.horizontal)
-                            .frame(maxHeight: .infinity)
-                            .background(.secondary)
-                            .clipShape(RoundedRectangle(cornerRadius: 8))
-                    }
-                }
-                .scrollTargetLayout()
-            }
-            .scrollPosition(id: $presenter.state.scrollPosition)
-            .scrollTargetBehavior(.viewAligned)
-            .safeAreaPadding(.horizontal, 24)
-            .frame(height: 120)
+//            ScrollView(.horizontal, showsIndicators: false) {
+//                LazyHStack {
+//                    ForEach(0..<10) { index in
+//                        Text(index.description)
+//                            .containerRelativeFrame(.horizontal)
+//                            .frame(maxHeight: .infinity)
+//                            .background(.secondary)
+//                            .clipShape(RoundedRectangle(cornerRadius: 8))
+//                    }
+//                }
+//                .scrollTargetLayout()
+//            }
+//            .scrollPosition(id: $presenter.state.scrollPosition)
+//            .scrollTargetBehavior(.viewAligned)
+//            .safeAreaPadding(.horizontal, 24)
+//            .frame(height: 120)
+            Text("Current Gesture: \(presenter.state.currentGesture.rawValue)")
 
             RealityView { content in
                 await presenter.dispatch(.makeRealityView)
