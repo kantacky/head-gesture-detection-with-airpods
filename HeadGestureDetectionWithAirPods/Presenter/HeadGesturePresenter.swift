@@ -21,8 +21,13 @@ final class HeadGesturePresenter {
         var cubeLeft = ModelEntity()
         var cubeRight = ModelEntity()
         var motion: CMDeviceMotion?
-        var startingPose: CMAttitude?
-        var currentPose: CMAttitude?
+        var startingMotion: CMDeviceMotion?
+        var currentPose: CMAttitude? {
+            motion?.attitude
+        }
+        var startingPose: CMAttitude? {
+            startingMotion?.attitude
+        }
         var motions: [CMDeviceMotion] = []
         var currentGesture: Gesture = .idle
         var isLogging: Bool {
@@ -77,7 +82,7 @@ final class HeadGesturePresenter {
             await onLoggingButtonTapped()
 
         case .onResetStartingPoseButtonTapped:
-            state.startingPose = nil
+            state.startingMotion = nil
 
         case .makeRealityView:
             makeRealityView()
@@ -173,11 +178,10 @@ private extension HeadGesturePresenter {
         if let startingPose = state.startingPose {
             motion.attitude.multiply(byInverseOf: startingPose)
         } else {
-            state.startingPose = motion.attitude
+            state.startingMotion = motion
         }
 
         state.motion = motion
-        state.currentPose = motion.attitude
 
         state.motions.append(motion)
         if state.motions.count > 100 {

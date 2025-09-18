@@ -15,20 +15,31 @@ struct HeadGestureScreen: View {
     var body: some View {
         VStack(spacing: 16) {
             carousel
+                .frame(height: 180)
 
+            if let pose = presenter.state.currentPose {
+                let width = 325.0
+                let rate = -pose.yaw / .pi
+                indicator(width: width, rate: rate)
+                    .frame(width: width, height: 8)
+            }
+
+            Divider()
             cubes
 
-            loggingButton
-
-            resetStartingPoseButton
-
             Divider()
+            HStack(spacing: 16) {
+                loggingButton
+                resetStartingPoseButton
+            }
 
-            motionData(presenter.state.motion)
+            //if let motion = presenter.state.motion {
+            //    Divider()
+            //    motionData(motion)
+            //}
 
-            Divider()
-
-            Text("Gesture: \(presenter.state.currentGesture.label)")
+            //Divider()
+            //Text("Gesture: \(presenter.state.currentGesture.label)")
         }
         .onAppear {
             presenter.dispatch(.onAppear)
@@ -46,6 +57,8 @@ struct HeadGestureScreen: View {
                     Text(index.description)
                         .containerRelativeFrame(.horizontal)
                         .frame(maxHeight: .infinity)
+                        .font(.largeTitle)
+                        .bold()
                         .background(.secondary)
                         .clipShape(RoundedRectangle(cornerRadius: 8))
                         .id(index)
@@ -56,7 +69,32 @@ struct HeadGestureScreen: View {
         .scrollPosition(id: $presenter.state.scrollPosition)
         .scrollTargetBehavior(.viewAligned)
         .safeAreaPadding(.horizontal, 24)
-        .frame(height: 120)
+    }
+
+    private func indicator(width: CGFloat, rate: Double) -> some View {
+        HStack(spacing: 0) {
+            if rate < 0 {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.secondary)
+                    .frame(width: width * 0.5 * (1 + rate))
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.blue)
+                    .frame(width: width * 0.5 * -rate)
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.secondary)
+                    .frame(width: width * 0.5)
+            } else {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.secondary)
+                    .frame(width: width * 0.5)
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.blue)
+                    .frame(width: width * 0.5 * rate)
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(.secondary)
+                    .frame(width: width * 0.5 * (1 - rate))
+            }
+        }
     }
 
     private var cubes: some View {
@@ -84,48 +122,46 @@ struct HeadGestureScreen: View {
     }
 
     @ViewBuilder
-    private func motionData(_ motion: CMDeviceMotion?) -> some View {
-        if let motion {
-            HStack {
-                VStack(alignment: .leading) {
-                    Text("attitude_pitch")
-                    Text("attitude_roll")
-                    Text("attitude_yaw")
-                    Text("gravity_x")
-                    Text("gravity_y")
-                    Text("gravity_z")
-                    Text("quaternion_w")
-                    Text("quaternion_x")
-                    Text("quaternion_y")
-                    Text("quaternion_z")
-                    Text("rotation_rate_x")
-                    Text("rotation_rate_y")
-                    Text("rotation_rate_z")
-                    Text("user_acceleration_x")
-                    Text("user_acceleration_y")
-                    Text("user_acceleration_z")
-                }
-                VStack(alignment: .trailing) {
-                    Text(motion.attitude.pitch, format: .number.precision(.fractionLength(4)))
-                    Text(motion.attitude.roll, format: .number.precision(.fractionLength(4)))
-                    Text(motion.attitude.yaw, format: .number.precision(.fractionLength(4)))
-                    Text(motion.gravity.x, format: .number.precision(.fractionLength(4)))
-                    Text(motion.gravity.y, format: .number.precision(.fractionLength(4)))
-                    Text(motion.gravity.z, format: .number.precision(.fractionLength(4)))
-                    Text(motion.attitude.quaternion.w, format: .number.precision(.fractionLength(4)))
-                    Text(motion.attitude.quaternion.x, format: .number.precision(.fractionLength(4)))
-                    Text(motion.attitude.quaternion.y, format: .number.precision(.fractionLength(4)))
-                    Text(motion.attitude.quaternion.z, format: .number.precision(.fractionLength(4)))
-                    Text(motion.rotationRate.x, format: .number.precision(.fractionLength(4)))
-                    Text(motion.rotationRate.y, format: .number.precision(.fractionLength(4)))
-                    Text(motion.rotationRate.z, format: .number.precision(.fractionLength(4)))
-                    Text(motion.userAcceleration.x, format: .number.precision(.fractionLength(4)))
-                    Text(motion.userAcceleration.y, format: .number.precision(.fractionLength(4)))
-                    Text(motion.userAcceleration.z, format: .number.precision(.fractionLength(4)))
-                }
+    private func motionData(_ motion: CMDeviceMotion) -> some View {
+        HStack {
+            VStack(alignment: .leading) {
+                Text("attitude_pitch")
+                Text("attitude_roll")
+                Text("attitude_yaw")
+                Text("gravity_x")
+                Text("gravity_y")
+                Text("gravity_z")
+                Text("quaternion_w")
+                Text("quaternion_x")
+                Text("quaternion_y")
+                Text("quaternion_z")
+                Text("rotation_rate_x")
+                Text("rotation_rate_y")
+                Text("rotation_rate_z")
+                Text("user_acceleration_x")
+                Text("user_acceleration_y")
+                Text("user_acceleration_z")
             }
-            .fontDesign(.monospaced)
+            VStack(alignment: .trailing) {
+                Text(motion.attitude.pitch, format: .number.precision(.fractionLength(4)))
+                Text(motion.attitude.roll, format: .number.precision(.fractionLength(4)))
+                Text(motion.attitude.yaw, format: .number.precision(.fractionLength(4)))
+                Text(motion.gravity.x, format: .number.precision(.fractionLength(4)))
+                Text(motion.gravity.y, format: .number.precision(.fractionLength(4)))
+                Text(motion.gravity.z, format: .number.precision(.fractionLength(4)))
+                Text(motion.attitude.quaternion.w, format: .number.precision(.fractionLength(4)))
+                Text(motion.attitude.quaternion.x, format: .number.precision(.fractionLength(4)))
+                Text(motion.attitude.quaternion.y, format: .number.precision(.fractionLength(4)))
+                Text(motion.attitude.quaternion.z, format: .number.precision(.fractionLength(4)))
+                Text(motion.rotationRate.x, format: .number.precision(.fractionLength(4)))
+                Text(motion.rotationRate.y, format: .number.precision(.fractionLength(4)))
+                Text(motion.rotationRate.z, format: .number.precision(.fractionLength(4)))
+                Text(motion.userAcceleration.x, format: .number.precision(.fractionLength(4)))
+                Text(motion.userAcceleration.y, format: .number.precision(.fractionLength(4)))
+                Text(motion.userAcceleration.z, format: .number.precision(.fractionLength(4)))
+            }
         }
+        .fontDesign(.monospaced)
     }
 }
 
