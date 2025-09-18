@@ -11,9 +11,9 @@ import DependenciesMacros
 
 @DependencyClient
 struct CSVService {
-    var create: @Sendable (_ header: String, _ filename: String) throws -> FileHandle
-    var write: @Sendable (_ row: String, _ file: FileHandle) throws -> Void
-    var close: @Sendable (_ file: FileHandle) throws -> Void
+    var create: @Sendable (_ header: String, _ filename: String) async throws -> FileHandle
+    var write: @Sendable (_ row: String, _ file: FileHandle) async throws -> Void
+    var close: @Sendable (_ file: FileHandle) async throws -> Void
 }
 
 extension CSVService: DependencyKey {

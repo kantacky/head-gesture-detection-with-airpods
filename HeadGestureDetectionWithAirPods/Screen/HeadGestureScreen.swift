@@ -30,6 +30,7 @@ struct HeadGestureScreen: View {
             .scrollTargetBehavior(.viewAligned)
             .safeAreaPadding(.horizontal, 24)
             .frame(height: 120)
+
             Text("Current Gesture: \(presenter.state.currentGesture.label)")
 
             RealityView { content in

@@ -7,8 +7,7 @@
 
 enum Gesture: String {
     case idle
-    case left
-    case right
+    case nod
 
     var label: String {
         rawValue.capitalized

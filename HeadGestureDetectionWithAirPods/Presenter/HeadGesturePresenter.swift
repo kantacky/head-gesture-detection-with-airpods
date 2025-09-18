@@ -73,7 +73,7 @@ final class HeadGesturePresenter {
             onDisappear()
 
         case .onLoggingButtonTapped:
-            onLoggingButtonTapped()
+            await onLoggingButtonTapped()
 
         case .onResetStartingPoseButtonTapped:
             state.startingPose = nil
@@ -87,47 +87,10 @@ final class HeadGesturePresenter {
 private extension HeadGesturePresenter {
     func onAppear() {
         trackingTask = Task {
-            do {
-                for await motion in try motionService.startTracking() {
-                    state.motion = motion
-                    if let csvFile = state.csvFile {
-                        saveMotionLog(file: csvFile, motion: motion)
-                    }
-                    state.motions.append(motion)
-                    if state.motions.count > 100 {
-                        state.motions.removeFirst()
-                    }
-                    if let startingPose = state.startingPose {
-                        motion.attitude.multiply(byInverseOf: startingPose)
-                    } else {
-                        state.startingPose = motion.attitude
-                    }
-                    state.currentPose = motion.attitude
-                    updateRealityView()
-                }
-            } catch {
-                print("Error starting tracking: \(error)")
-            }
+            await startTracking()
         }
-        let timer = AsyncTimerSequence(
-            interval: .milliseconds(100),
-            clock: .continuous
-        )
         gesturePredictionTimerTask = Task {
-            for await _ in timer {
-                do {
-                    if state.motions.count != 100 {
-                        continue
-                    }
-                    let gesture = try await headGesturePredictionService.predict(motions: state.motions)
-                    if state.currentGesture != gesture {
-                        scroll(gesture: gesture)
-                    }
-                    state.currentGesture = gesture
-                } catch {
-                    print("Failed to predict gesture: \(error)")
-                }
-            }
+            await startGesturePredictionTimer()
         }
     }
 
@@ -136,19 +99,23 @@ private extension HeadGesturePresenter {
         motionService.stopTracking()
     }
 
-    func onLoggingButtonTapped() {
+    func onLoggingButtonTapped() async {
         if let csvFile = state.csvFile {
-            try? csvService.close(csvFile)
-            state.csvFile = nil
-            return
-        }
-        do {
-            state.csvFile = try csvService.create(
-                header: MotionLogCSVRow.csvHeaderString,
-                filename: DateFormatter.fileName.string(from: .now)
-            )
-        } catch {
-            print("Failed to create motion log CSV file: \(error)")
+            do {
+                try await csvService.close(csvFile)
+                state.csvFile = nil
+            } catch {
+                print("Failed to close motion log CSV file: \(error)")
+            }
+        } else {
+            do {
+                state.csvFile = try await csvService.create(
+                    header: MotionLogCSVRow.csvHeaderString,
+                    filename: DateFormatter.fileName.string(from: .now)
+                )
+            } catch {
+                print("Failed to create motion log CSV file: \(error)")
+            }
         }
     }
 
@@ -163,49 +130,81 @@ private extension HeadGesturePresenter {
 }
 
 private extension HeadGesturePresenter {
-    func updateRealityView() {
-        guard
-            let motion = state.motion,
-            let pose = state.currentPose
-        else {
-            return
+    func startTracking() async {
+        do {
+            for await motion in try motionService.startTracking() {
+                if let csvFile = state.csvFile {
+                    Task {
+                        await saveMotion(motion, to: csvFile)
+                    }
+                }
+                updateMotion(motion)
+                updateRealityView(with: motion)
+            }
+        } catch {
+            print("Error starting tracking: \(error)")
         }
+    }
+
+    func startGesturePredictionTimer() async {
+        let timer = AsyncTimerSequence(
+            interval: .milliseconds(100),
+            clock: .continuous
+        )
+        for await _ in timer {
+            do {
+                if state.motions.count != 100 {
+                    continue
+                }
+                let gesture = try await headGesturePredictionService.predict(motions: state.motions)
+                if gesture != state.currentGesture && gesture == .nod {
+                    #warning("TODO")
+                }
+                state.currentGesture = gesture
+            } catch {
+                print("Failed to predict gesture: \(error)")
+            }
+        }
+    }
+
+    func updateMotion(_ motion: CMDeviceMotion) {
+        if let startingPose = state.startingPose {
+            motion.attitude.multiply(byInverseOf: startingPose)
+        } else {
+            state.startingPose = motion.attitude
+        }
+
+        state.motion = motion
+        state.currentPose = motion.attitude
+
+        state.motions.append(motion)
+        if state.motions.count > 100 {
+            state.motions.removeFirst()
+        }
+    }
+
+    func updateRealityView(with motion: CMDeviceMotion) {
         switch motion.sensorLocation {
         case .default:
-            state.cubeLeft.transform.rotation = pose.quaternion.simd_quatf
-            state.cubeRight.transform.rotation = pose.quaternion.simd_quatf
+            state.cubeLeft.transform.rotation = motion.attitude.quaternion.simd_quatf
+            state.cubeRight.transform.rotation = motion.attitude.quaternion.simd_quatf
         case .headphoneLeft:
-            state.cubeLeft.transform.rotation = pose.quaternion.simd_quatf
+            state.cubeLeft.transform.rotation = motion.attitude.quaternion.simd_quatf
             state.cubeRight.transform.rotation = .init(ix: 0, iy: 0, iz: 0, r: 0)
         case .headphoneRight:
             state.cubeLeft.transform.rotation = .init(ix: 0, iy: 0, iz: 0, r: 0)
-            state.cubeRight.transform.rotation = pose.quaternion.simd_quatf
+            state.cubeRight.transform.rotation = motion.attitude.quaternion.simd_quatf
         @unknown default:
             return
         }
     }
 
-    func saveMotionLog(file: FileHandle, motion: CMDeviceMotion) {
+    func saveMotion(_ motion: CMDeviceMotion, to file: FileHandle) async {
         do {
             let row = MotionLogCSVRow(motion: motion)
-            try csvService.write(row.csvRowString(), file)
+            try await csvService.write(row.csvRowString(), file)
         } catch {
             print("Failed to write motion log CSV file: \(error)")
-        }
-    }
-
-    func scroll(gesture: Gesture) {
-        var scrollPosition = state.scrollPosition ?? 0
-        switch gesture {
-        case .idle:
-            break
-        case .left:
-            scrollPosition += 1
-        case .right:
-            scrollPosition -= 1
-        }
-        withAnimation {
-            state.scrollPosition = max(0, scrollPosition)
         }
     }
 }
