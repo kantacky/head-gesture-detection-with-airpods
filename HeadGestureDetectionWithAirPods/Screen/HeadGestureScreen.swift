@@ -5,6 +5,7 @@
 //  Created by Kanta Oikawa on 2025/08/18.
 //
 
+import CoreMotion
 import RealityKit
 import SwiftUI
 
@@ -23,7 +24,7 @@ struct HeadGestureScreen: View {
 
             Divider()
 
-            Text("Motion: \(presenter.state.motion?.debugDescription ?? "Empty")")
+            motionData(presenter.state.motion)
 
             Divider()
 
@@ -80,6 +81,51 @@ struct HeadGestureScreen: View {
         }
         .buttonStyle(.borderedProminent)
         .buttonBorderShape(.capsule)
+    }
+
+    @ViewBuilder
+    private func motionData(_ motion: CMDeviceMotion?) -> some View {
+        if let motion {
+            HStack {
+                VStack(alignment: .leading) {
+                    Text("attitude_pitch")
+                    Text("attitude_roll")
+                    Text("attitude_yaw")
+                    Text("gravity_x")
+                    Text("gravity_y")
+                    Text("gravity_z")
+                    Text("quaternion_w")
+                    Text("quaternion_x")
+                    Text("quaternion_y")
+                    Text("quaternion_z")
+                    Text("rotation_rate_x")
+                    Text("rotation_rate_y")
+                    Text("rotation_rate_z")
+                    Text("user_acceleration_x")
+                    Text("user_acceleration_y")
+                    Text("user_acceleration_z")
+                }
+                VStack(alignment: .trailing) {
+                    Text(motion.attitude.pitch, format: .number.precision(.fractionLength(4)))
+                    Text(motion.attitude.roll, format: .number.precision(.fractionLength(4)))
+                    Text(motion.attitude.yaw, format: .number.precision(.fractionLength(4)))
+                    Text(motion.gravity.x, format: .number.precision(.fractionLength(4)))
+                    Text(motion.gravity.y, format: .number.precision(.fractionLength(4)))
+                    Text(motion.gravity.z, format: .number.precision(.fractionLength(4)))
+                    Text(motion.attitude.quaternion.w, format: .number.precision(.fractionLength(4)))
+                    Text(motion.attitude.quaternion.x, format: .number.precision(.fractionLength(4)))
+                    Text(motion.attitude.quaternion.y, format: .number.precision(.fractionLength(4)))
+                    Text(motion.attitude.quaternion.z, format: .number.precision(.fractionLength(4)))
+                    Text(motion.rotationRate.x, format: .number.precision(.fractionLength(4)))
+                    Text(motion.rotationRate.y, format: .number.precision(.fractionLength(4)))
+                    Text(motion.rotationRate.z, format: .number.precision(.fractionLength(4)))
+                    Text(motion.userAcceleration.x, format: .number.precision(.fractionLength(4)))
+                    Text(motion.userAcceleration.y, format: .number.precision(.fractionLength(4)))
+                    Text(motion.userAcceleration.z, format: .number.precision(.fractionLength(4)))
+                }
+            }
+            .fontDesign(.monospaced)
+        }
     }
 }
 
