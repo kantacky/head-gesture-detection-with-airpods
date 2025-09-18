@@ -47,14 +47,15 @@ final class HeadGesturePresenter {
     @ObservationIgnored
     @Dependency(HeadGesturePredictionService.self) private var headGesturePredictionService
     @ObservationIgnored
-    private var trackingTask: Task<Void, Never>?
+    private var trackingTask: Task<Void, Never>? {
+        didSet {
+            oldValue?.cancel()
+        }
+    }
     @ObservationIgnored
-    private var gesturePredictionTimerTask: Task<Void, Never>?
-
-    deinit {
-        Task { [weak self] in
-            await self?.trackingTask?.cancel()
-            await self?.gesturePredictionTimerTask?.cancel()
+    private var gesturePredictionTimerTask: Task<Void, Never>? {
+        didSet {
+            oldValue?.cancel()
         }
     }
 
@@ -96,6 +97,7 @@ private extension HeadGesturePresenter {
 
     func onDisappear() {
         trackingTask?.cancel()
+        gesturePredictionTimerTask?.cancel()
         motionService.stopTracking()
     }
 
