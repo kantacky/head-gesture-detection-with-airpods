@@ -18,11 +18,18 @@ struct HeadGestureScreen: View {
                 .frame(height: 180)
 
             if let pose = presenter.state.currentPose {
-                let width = 325.0
+                let width = 600.0
                 let rate = -pose.yaw / .pi
-                indicator(width: width, rate: rate)
-                    .frame(width: width, height: 8)
+                let accentColor = if abs(pose.yaw) > .pi / 12 {
+                    presenter.state.currentGesture == .nod ? Color.red : Color.green
+                } else {
+                    Color.blue
+                }
+                indicator(width: width, rate: rate, accentColor: accentColor)
+                    .frame(width: width, height: 24)
             }
+
+            Text("Gesture: \(presenter.state.currentGesture.label)")
 
             Divider()
             cubes
@@ -37,9 +44,6 @@ struct HeadGestureScreen: View {
             //    Divider()
             //    motionData(motion)
             //}
-
-            //Divider()
-            //Text("Gesture: \(presenter.state.currentGesture.label)")
         }
         .onAppear {
             presenter.dispatch(.onAppear)
@@ -53,7 +57,7 @@ struct HeadGestureScreen: View {
     private var carousel: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack {
-                ForEach(0..<10) { index in
+                ForEach(presenter.state.carouselRange, id: \.self) { index in
                     Text(index.description)
                         .containerRelativeFrame(.horizontal)
                         .frame(maxHeight: .infinity)
@@ -71,26 +75,26 @@ struct HeadGestureScreen: View {
         .safeAreaPadding(.horizontal, 24)
     }
 
-    private func indicator(width: CGFloat, rate: Double) -> some View {
+    private func indicator(width: CGFloat, rate: Double, accentColor: Color) -> some View {
         HStack(spacing: 0) {
             if rate < 0 {
-                RoundedRectangle(cornerRadius: 8)
+                Rectangle()
                     .fill(.secondary)
                     .frame(width: width * 0.5 * (1 + rate))
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(.blue)
+                Rectangle()
+                    .fill(accentColor)
                     .frame(width: width * 0.5 * -rate)
-                RoundedRectangle(cornerRadius: 8)
+                Rectangle()
                     .fill(.secondary)
                     .frame(width: width * 0.5)
             } else {
-                RoundedRectangle(cornerRadius: 8)
+                Rectangle()
                     .fill(.secondary)
                     .frame(width: width * 0.5)
-                RoundedRectangle(cornerRadius: 8)
-                    .fill(.blue)
+                Rectangle()
+                    .fill(accentColor)
                     .frame(width: width * 0.5 * rate)
-                RoundedRectangle(cornerRadius: 8)
+                Rectangle()
                     .fill(.secondary)
                     .frame(width: width * 0.5 * (1 - rate))
             }

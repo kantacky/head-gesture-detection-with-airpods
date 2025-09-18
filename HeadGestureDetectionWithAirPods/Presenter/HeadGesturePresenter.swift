@@ -17,6 +17,7 @@ import SwiftUI
 final class HeadGesturePresenter {
     @MainActor
     struct State {
+        let carouselRange = 0..<10
         var scrollPosition: Int? = 0
         var cubeLeft = ModelEntity()
         var cubeRight = ModelEntity()
@@ -109,8 +110,8 @@ private extension HeadGesturePresenter {
     func onLoggingButtonTapped() async {
         if let csvFile = state.csvFile {
             do {
-                try await csvService.close(csvFile)
                 state.csvFile = nil
+                try await csvService.close(csvFile)
             } catch {
                 print("Failed to close motion log CSV file: \(error)")
             }
@@ -164,8 +165,18 @@ private extension HeadGesturePresenter {
                     continue
                 }
                 let gesture = try await headGesturePredictionService.predict(motions: state.motions)
-                if gesture != state.currentGesture && gesture == .nod {
-                    #warning("TODO")
+                if gesture != state.currentGesture && gesture == .nod && abs(state.currentPose?.yaw ?? 0) > .pi / 12 {
+                    var scrollPosition = state.scrollPosition ?? 0
+                    if -(state.currentPose?.yaw ?? 0) > 0 {
+                        scrollPosition -= 1
+                    } else {
+                        scrollPosition += 1
+                    }
+                    scrollPosition = max(state.carouselRange.lowerBound, scrollPosition)
+                    scrollPosition = min(state.carouselRange.upperBound, scrollPosition)
+                    withAnimation {
+                        state.scrollPosition = scrollPosition
+                    }
                 }
                 state.currentGesture = gesture
             } catch {
