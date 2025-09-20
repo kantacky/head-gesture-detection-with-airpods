@@ -119,7 +119,7 @@ private extension HeadGesturePresenter {
             do {
                 state.csvFile = try await csvService.create(
                     header: MotionLogCSVRow.csvHeaderString,
-                    filename: DateFormatter.fileName.string(from: .now)
+                    filename: Date().formatted(.iso8601.dateSeparator(.omitted).timeSeparator(.omitted))
                 )
             } catch {
                 print("Failed to create motion log CSV file: \(error)")
