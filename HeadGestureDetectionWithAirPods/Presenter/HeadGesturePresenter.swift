@@ -156,7 +156,7 @@ private extension HeadGesturePresenter {
 
     func startGesturePredictionTimer() async {
         let timer = AsyncTimerSequence(
-            interval: .milliseconds(100),
+            interval: .milliseconds(500),
             clock: .continuous
         )
         for await _ in timer {

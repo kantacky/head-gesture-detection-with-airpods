@@ -31,19 +31,12 @@ struct HeadGestureScreen: View {
 
             Text("Gesture: \(presenter.state.currentGesture.label)")
 
-            Divider()
             cubes
 
-            Divider()
             HStack(spacing: 16) {
                 loggingButton
                 resetStartingPoseButton
             }
-
-            //if let motion = presenter.state.motion {
-            //    Divider()
-            //    motionData(motion)
-            //}
         }
         .onAppear {
             presenter.dispatch(.onAppear)
