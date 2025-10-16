@@ -104,7 +104,6 @@ private extension HeadGesturePresenter {
     func onDisappear() {
         trackingTask?.cancel()
         gesturePredictionTimerTask?.cancel()
-        motionService.stopTracking()
     }
 
     func onLoggingButtonTapped() async {
@@ -140,7 +139,7 @@ private extension HeadGesturePresenter {
 private extension HeadGesturePresenter {
     func startTracking() async {
         do {
-            for await motion in try motionService.startTracking() {
+            for try await motion in try motionService.motionUpdates() {
                 if let csvFile = state.csvFile {
                     Task {
                         await saveMotion(motion, to: csvFile)
@@ -160,27 +159,29 @@ private extension HeadGesturePresenter {
             clock: .continuous
         )
         for await _ in timer {
-            do {
-                if state.motions.count != 100 {
-                    continue
-                }
-                let gesture = try await headGesturePredictionService.predict(motions: state.motions)
-                if gesture != state.currentGesture && gesture == .nod && abs(state.currentPose?.yaw ?? 0) > .pi / 12 {
-                    var scrollPosition = state.scrollPosition ?? 0
-                    if -(state.currentPose?.yaw ?? 0) > 0 {
-                        scrollPosition -= 1
-                    } else {
-                        scrollPosition += 1
+            if state.motions.count != 100 {
+                continue
+            }
+            Task { [motions = state.motions] in
+                do {
+                    let gesture = try await headGesturePredictionService.predict(motions: motions)
+                    if gesture != state.currentGesture && gesture == .nod && abs(state.currentPose?.yaw ?? 0) > .pi / 12 {
+                        var scrollPosition = state.scrollPosition ?? 0
+                        if -(state.currentPose?.yaw ?? 0) > 0 {
+                            scrollPosition -= 1
+                        } else {
+                            scrollPosition += 1
+                        }
+                        scrollPosition = max(state.carouselRange.lowerBound, scrollPosition)
+                        scrollPosition = min(state.carouselRange.upperBound, scrollPosition)
+                        withAnimation {
+                            state.scrollPosition = scrollPosition
+                        }
                     }
-                    scrollPosition = max(state.carouselRange.lowerBound, scrollPosition)
-                    scrollPosition = min(state.carouselRange.upperBound, scrollPosition)
-                    withAnimation {
-                        state.scrollPosition = scrollPosition
-                    }
+                    state.currentGesture = gesture
+                } catch {
+                    print("Failed to predict gesture: \(error)")
                 }
-                state.currentGesture = gesture
-            } catch {
-                print("Failed to predict gesture: \(error)")
             }
         }
     }

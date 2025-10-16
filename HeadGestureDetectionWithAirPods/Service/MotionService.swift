@@ -8,22 +8,18 @@
 import CoreMotion
 import Dependencies
 import DependenciesMacros
+import HeadphoneMotion
 
 @DependencyClient
 struct MotionService {
-    var startTracking: @Sendable () throws -> AsyncStream<CMDeviceMotion>
-    var stopTracking: @Sendable () -> Void = {}
+    var motionUpdates: @Sendable () throws -> AsyncThrowingStream<CMDeviceMotion, Error>
 }
 
 extension MotionService: DependencyKey {
     static let liveValue = {
-        let repository = HeadphoneMotionRepository()
         return MotionService(
-            startTracking: {
-                try repository.startTracking()
-            },
-            stopTracking: {
-                repository.stopTracking()
+            motionUpdates: {
+                try HeadphoneMotionUpdate.updates()
             }
         )
     }()

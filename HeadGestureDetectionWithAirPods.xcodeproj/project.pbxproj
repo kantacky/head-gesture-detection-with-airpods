@@ -10,6 +10,7 @@
 		F1317D592E79189700F7643E /* AsyncAlgorithms in Frameworks */ = {isa = PBXBuildFile; productRef = F1317D582E79189700F7643E /* AsyncAlgorithms */; };
 		F14B027D2E72A9B700306532 /* Dependencies in Frameworks */ = {isa = PBXBuildFile; productRef = F14B027C2E72A9B700306532 /* Dependencies */; };
 		F14B027F2E72A9B700306532 /* DependenciesMacros in Frameworks */ = {isa = PBXBuildFile; productRef = F14B027E2E72A9B700306532 /* DependenciesMacros */; };
+		F1D738272EA13ACB00C2A2DD /* HeadphoneMotion in Frameworks */ = {isa = PBXBuildFile; productRef = F1D738262EA13ACB00C2A2DD /* HeadphoneMotion */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -61,6 +62,7 @@
 				F14B027F2E72A9B700306532 /* DependenciesMacros in Frameworks */,
 				F14B027D2E72A9B700306532 /* Dependencies in Frameworks */,
 				F1317D592E79189700F7643E /* AsyncAlgorithms in Frameworks */,
+				F1D738272EA13ACB00C2A2DD /* HeadphoneMotion in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +89,7 @@
 				F130D4B52E21127C009ADB57 /* HeadGestureDetectionWithAirPods */,
 				F130D4C42E21127E009ADB57 /* HeadGestureDetectionWithAirPodsTests */,
 				F130D4CE2E21127E009ADB57 /* HeadGestureDetectionWithAirPodsUITests */,
+				F1D738252EA13ACB00C2A2DD /* Frameworks */,
 				F130D4B42E21127C009ADB57 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -99,6 +102,13 @@
 				F130D4CB2E21127E009ADB57 /* HeadGestureDetectionWithAirPodsUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		F1D738252EA13ACB00C2A2DD /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -124,6 +134,7 @@
 				F14B027C2E72A9B700306532 /* Dependencies */,
 				F14B027E2E72A9B700306532 /* DependenciesMacros */,
 				F1317D582E79189700F7643E /* AsyncAlgorithms */,
+				F1D738262EA13ACB00C2A2DD /* HeadphoneMotion */,
 			);
 			productName = HeadGestureDetectionWithAirPods;
 			productReference = F130D4B32E21127C009ADB57 /* HeadGestureDetectionWithAirPods.app */;
@@ -210,6 +221,7 @@
 			packageReferences = (
 				F14B027B2E72A9B700306532 /* XCRemoteSwiftPackageReference "swift-dependencies" */,
 				F1317D572E79189700F7643E /* XCRemoteSwiftPackageReference "swift-async-algorithms" */,
+				F1D737FA2EA1326C00C2A2DD /* XCRemoteSwiftPackageReference "kantacky-kit" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = F130D4B42E21127C009ADB57 /* Products */;
@@ -501,9 +513,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.kantacky.HeadGestureDetectionWithAirPodsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HeadGestureDetectionWithAirPods.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HeadGestureDetectionWithAirPods";
 				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
@@ -523,9 +536,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.kantacky.HeadGestureDetectionWithAirPodsTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HeadGestureDetectionWithAirPods.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/HeadGestureDetectionWithAirPods";
 				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
@@ -544,9 +558,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.kantacky.HeadGestureDetectionWithAirPodsUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = HeadGestureDetectionWithAirPods;
 				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
@@ -565,9 +580,10 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.kantacky.HeadGestureDetectionWithAirPodsUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = auto;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = NO;
-				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = HeadGestureDetectionWithAirPods;
 				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
@@ -631,6 +647,14 @@
 				minimumVersion = 1.9.4;
 			};
 		};
+		F1D737FA2EA1326C00C2A2DD /* XCRemoteSwiftPackageReference "kantacky-kit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kantacky/kantacky-kit";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.1.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -648,6 +672,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F14B027B2E72A9B700306532 /* XCRemoteSwiftPackageReference "swift-dependencies" */;
 			productName = DependenciesMacros;
+		};
+		F1D738262EA13ACB00C2A2DD /* HeadphoneMotion */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F1D737FA2EA1326C00C2A2DD /* XCRemoteSwiftPackageReference "kantacky-kit" */;
+			productName = HeadphoneMotion;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
