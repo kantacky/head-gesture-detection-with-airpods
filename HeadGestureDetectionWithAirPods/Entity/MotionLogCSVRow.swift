@@ -60,7 +60,7 @@ struct MotionLogCSVRow {
 
     func csvRowString() -> String {
         var list: [String] = []
-        list.append(timestamp.ISO8601Format())
+        list.append(timestamp.formatted(.iso8601.time(includingFractionalSeconds: true)))
         list.append(attitudeRoll.description)
         list.append(attitudePitch.description)
         list.append(attitudeYaw.description)
